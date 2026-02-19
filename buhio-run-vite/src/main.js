@@ -77,13 +77,19 @@ for (let i = -1.5; i <= 1.5; i += 1.5) {
     }
 }
 
+// BGM
+const bgm = new Audio('/bgm.mp3');
+bgm.loop = true;
+bgm.volume = 0.3;
+
 // Buhio (3D model)
 let buhio;
 const loader = new GLTFLoader();
 loader.load('/buhio-3d.glb', (gltf) => {
     buhio = gltf.scene;
-    buhio.scale.set(0.5, 0.5, 0.5);
+    buhio.scale.set(1.0, 1.0, 1.0);
     buhio.position.set(0, 0, 0);
+    buhio.rotation.y = Math.PI;
     buhio.traverse((child) => {
         if (child.isMesh) {
             child.castShadow = true;
@@ -164,10 +170,15 @@ function startGame() {
     gameState.obstacles = [];
     
     document.getElementById('game-over').style.display = 'none';
+    
+    // Start BGM
+    bgm.currentTime = 0;
+    bgm.play().catch(e => console.log('BGM play failed:', e));
 }
 
 function gameOver() {
     gameState.isPlaying = false;
+    bgm.pause();
     document.getElementById('game-over').style.display = 'block';
     document.getElementById('start-screen').style.display = 'block';
     document.getElementById('start-screen').querySelector('p').textContent = 
