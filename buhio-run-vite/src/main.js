@@ -11,7 +11,8 @@ let gameState = {
     buhioY: 0,
     velocityY: 0,
     isJumping: false,
-    obstacles: []
+    obstacles: [],
+    obstacleModels: [] // 3D models for obstacles
 };
 
 // Scene setup
@@ -87,9 +88,9 @@ let buhio;
 const loader = new GLTFLoader();
 loader.load('/buhio-3d.glb', (gltf) => {
     buhio = gltf.scene;
-    buhio.scale.set(1.0, 1.0, 1.0);
+    buhio.scale.set(3.0, 3.0, 3.0);
     buhio.position.set(0, 0, 0);
-    buhio.rotation.y = Math.PI;
+    buhio.rotation.y = -Math.PI / 2;
     buhio.traverse((child) => {
         if (child.isMesh) {
             child.castShadow = true;
@@ -107,37 +108,51 @@ loader.load('/buhio-3d.glb', (gltf) => {
     scene.add(buhio);
 });
 
+// Load obstacle models
+const obstacleUrls = ['/obstacle1.glb', '/obstacle2.glb', '/obstacle3.glb'];
+const loader2 = new GLTFLoader();
+obstacleUrls.forEach((url, index) => {
+    loader2.load(url, (gltf) => {
+        const model = gltf.scene;
+        model.scale.set(1.5, 1.5, 1.5);
+        model.traverse((child) => {
+            if (child.isMesh) {
+                child.castShadow = true;
+            }
+        });
+        gameState.obstacleModels[index] = model;
+    }, undefined, (error) => {
+        console.error(`Error loading obstacle ${index}:`, error);
+    });
+});
+
 // Obstacle creation
 function createObstacle() {
     const lane = lanes[Math.floor(Math.random() * 3)];
-    const types = ['box', 'cone', 'barrel'];
-    const type = types[Math.floor(Math.random() * types.length)];
+    const modelIndex = Math.floor(Math.random() * 3);
     
     let obstacle;
     
-    if (type === 'box') {
+    // Use loaded 3D model or fallback
+    if (gameState.obstacleModels[modelIndex]) {
+        obstacle = gameState.obstacleModels[modelIndex].clone();
+        obstacle.position.y = 0;
+    } else {
+        // Fallback to simple geometry
         obstacle = new THREE.Mesh(
             new THREE.BoxGeometry(1.5, 1.5, 1.5),
             new THREE.MeshStandardMaterial({ color: 0xff4444 })
-        );
-        obstacle.position.y = 0.75;
-    } else if (type === 'cone') {
-        obstacle = new THREE.Mesh(
-            new THREE.ConeGeometry(0.7, 2, 8),
-            new THREE.MeshStandardMaterial({ color: 0xff8800 })
-        );
-        obstacle.position.y = 1;
-    } else {
-        obstacle = new THREE.Mesh(
-            new THREE.CylinderGeometry(0.6, 0.6, 1.5, 16),
-            new THREE.MeshStandardMaterial({ color: 0x4444ff })
         );
         obstacle.position.y = 0.75;
     }
     
     obstacle.position.x = lane;
     obstacle.position.z = -80;
-    obstacle.castShadow = true;
+    
+    // Randomly decide if obstacle moves left-right
+    obstacle.userData.moving = Math.random() > 0.5;
+    obstacle.userData.moveSpeed = 0.05;
+    obstacle.userData.moveDirection = Math.random() > 0.5 ? 1 : -1;
     
     scene.add(obstacle);
     gameState.obstacles.push(obstacle);
@@ -236,6 +251,16 @@ function animate(time) {
         for (let i = gameState.obstacles.length - 1; i >= 0; i--) {
             const obstacle = gameState.obstacles[i];
             obstacle.position.z += gameState.speed;
+            
+            // Move left-right if obstacle is moving type
+            if (obstacle.userData.moving) {
+                obstacle.position.x += obstacle.userData.moveSpeed * obstacle.userData.moveDirection;
+                
+                // Reverse direction at lane boundaries
+                if (Math.abs(obstacle.position.x) > laneWidth) {
+                    obstacle.userData.moveDirection *= -1;
+                }
+            }
             
             if (obstacle.position.z > 5) {
                 scene.remove(obstacle);
