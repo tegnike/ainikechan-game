@@ -90,7 +90,7 @@ loader.load('/buhio-3d.glb', (gltf) => {
     buhio = gltf.scene;
     buhio.scale.set(3.0, 3.0, 3.0);
     buhio.position.set(0, 0, 0);
-    buhio.rotation.y = Math.PI;
+    buhio.rotation.y = Math.PI * 1.5;
     buhio.traverse((child) => {
         if (child.isMesh) {
             child.castShadow = true;
