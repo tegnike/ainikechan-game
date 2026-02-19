@@ -90,7 +90,7 @@ loader.load('/buhio-3d.glb', (gltf) => {
     buhio = gltf.scene;
     buhio.scale.set(3.0, 3.0, 3.0);
     buhio.position.set(0, 0, 0);
-    buhio.rotation.y = -Math.PI / 2;
+    buhio.rotation.y = Math.PI;
     buhio.traverse((child) => {
         if (child.isMesh) {
             child.castShadow = true;
@@ -114,7 +114,7 @@ const loader2 = new GLTFLoader();
 obstacleUrls.forEach((url, index) => {
     loader2.load(url, (gltf) => {
         const model = gltf.scene;
-        model.scale.set(1.5, 1.5, 1.5);
+        model.scale.set(3.0, 3.0, 3.0);
         model.traverse((child) => {
             if (child.isMesh) {
                 child.castShadow = true;
@@ -136,7 +136,7 @@ function createObstacle() {
     // Use loaded 3D model or fallback
     if (gameState.obstacleModels[modelIndex]) {
         obstacle = gameState.obstacleModels[modelIndex].clone();
-        obstacle.position.y = 0;
+        obstacle.position.y = 1.5;
     } else {
         // Fallback to simple geometry
         obstacle = new THREE.Mesh(
