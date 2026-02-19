@@ -59,32 +59,96 @@ body {
     transform: translate(-50%, -50%);
     text-align: center;
     z-index: 100;
+    background: linear-gradient(135deg, rgba(255,107,107,0.9), rgba(255,217,61,0.9));
+    padding: 60px 80px;
+    border-radius: 30px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translate(-50%, -50%) translateY(0); }
+    50% { transform: translate(-50%, -50%) translateY(-10px); }
 }
 
 #start-screen h1 {
-    color: #ffd700;
-    font-size: 64px;
-    margin-bottom: 20px;
-    text-shadow: 3px 3px 6px rgba(0,0,0,0.8);
+    color: #fff;
+    font-size: 72px;
+    margin-bottom: 15px;
+    text-shadow: 4px 4px 0px rgba(0,0,0,0.3);
+    animation: bounce 1s ease-in-out infinite;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+#start-screen .subtitle {
+    color: #fff;
+    font-size: 28px;
+    margin-bottom: 30px;
+    font-weight: bold;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+#start-screen .controls {
+    background: rgba(255,255,255,0.3);
+    padding: 20px 30px;
+    border-radius: 15px;
+    margin-bottom: 30px;
+    color: #333;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+#start-screen .controls div {
+    margin: 8px 0;
 }
 
 #start-screen p {
-    color: #fff;
-    font-size: 24px;
-    margin-bottom: 30px;
+    color: #333;
+    font-size: 20px;
+    margin-bottom: 20px;
+    font-weight: bold;
 }
 
 #start-btn {
-    background: #5A4C97;
+    background: linear-gradient(135deg, #5A4C97, #7B68EE);
     color: #fff;
-    border: none;
-    padding: 15px 40px;
-    font-size: 24px;
+    border: 4px solid #fff;
+    padding: 20px 60px;
+    font-size: 32px;
+    font-weight: bold;
     cursor: pointer;
-    border-radius: 10px;
-    transition: transform 0.2s;
+    border-radius: 50px;
+    transition: all 0.3s;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); box-shadow: 0 8px 20px rgba(0,0,0,0.3); }
+    50% { transform: scale(1.05); box-shadow: 0 12px 30px rgba(0,0,0,0.4); }
 }
 
 #start-btn:hover {
-    transform: scale(1.1);
+    transform: scale(1.15);
+    background: linear-gradient(135deg, #7B68EE, #9370DB);
+}
+
+.buhio-runner {
+    position: absolute;
+    bottom: 20px;
+    left: -100px;
+    font-size: 60px;
+    animation: run 4s linear infinite;
+    z-index: 1;
+}
+
+@keyframes run {
+    0% { left: -100px; transform: scaleX(1); }
+    49% { left: 110%; transform: scaleX(1); }
+    50% { left: 110%; transform: scaleX(-1); }
+    100% { left: -100px; transform: scaleX(-1); }
 }

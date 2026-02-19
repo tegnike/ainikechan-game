@@ -2,6 +2,9 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import './style.css';
 
+// Animation mixer
+let mixer = null;
+
 // Game state
 let gameState = {
     isPlaying: false,
@@ -90,13 +93,23 @@ loader.load('/buhio-3d.glb', (gltf) => {
     buhio = gltf.scene;
     buhio.scale.set(3.0, 3.0, 3.0);
     buhio.position.set(0, 0, 0);
-    buhio.rotation.y = Math.PI * 1.5;
+    buhio.rotation.y = Math.PI * 0.5;
     buhio.traverse((child) => {
         if (child.isMesh) {
             child.castShadow = true;
         }
     });
     scene.add(buhio);
+    
+    // Animation setup
+    if (gltf.animations && gltf.animations.length > 0) {
+        mixer = new THREE.AnimationMixer(buhio);
+        const action = mixer.clipAction(gltf.animations[0]);
+        action.play();
+        console.log('Animation found:', gltf.animations[0].name);
+    } else {
+        console.log('No animations found in model');
+    }
 }, undefined, (error) => {
     console.error('Error loading model:', error);
     // Fallback to placeholder
@@ -219,6 +232,11 @@ let lastObstacleTime = 0;
 function animate(time) {
     requestAnimationFrame(animate);
     
+    // Update animation mixer
+    if (mixer) {
+        mixer.update(0.016); // ~60fps
+    }
+    
     if (gameState.isPlaying) {
         // Horizontal movement
         if (keys['ArrowLeft'] || keys['KeyA']) {
@@ -243,9 +261,6 @@ function animate(time) {
         // Update Buhio position
         buhio.position.x = gameState.buhioX;
         buhio.position.y = gameState.buhioY + 1;
-        
-        // Running animation
-        buhio.rotation.z = Math.sin(time * 0.01) * 0.1;
         
         // Move obstacles
         for (let i = gameState.obstacles.length - 1; i >= 0; i--) {
